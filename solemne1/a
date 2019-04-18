@@ -1,0 +1,8 @@
+
+registrar si el pedido va a ser despachado o retirado
+solicitar el domicilio si debe ser despachado
+imprimir el valor
+preparar pizza
+registrar el valor a pagar
+si el pago está completo, registrar que fue pagado
+imprimir el vuelto
