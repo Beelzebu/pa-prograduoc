@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
-import platform
 import os
+import platform
 import re
 import time
 
@@ -49,8 +49,8 @@ def isint(x):
 
 
 def clear():
-    name = re.sub(r"[^\w]+", "", platform.system())
-    if "Windows" in name:
+    name = re.sub(r"[^\w]+", "", platform.system()).lower()
+    if "windows" in name:
         os.system("cls")
     else:
         os.system("clear")
