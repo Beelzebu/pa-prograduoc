@@ -6,11 +6,18 @@ import re
 import time
 
 from fichas_medicas.ficha import Ficha
+from fichas_medicas.medicine import Lidocaina
+from fichas_medicas.medicine import Omeprazol
+from fichas_medicas.medicine import Paracetamol
+from fichas_medicas.medicine import Penicilina
+from fichas_medicas.medicine import Salbutamol
 from fichas_medicas.people import Acompaniante
+from fichas_medicas.people import Medico
 from fichas_medicas.people import Paciente
 from fichas_medicas.people import Personal
 
-fichas = []
+ficha_actual = None
+fichas = {}
 
 
 def run():
@@ -35,7 +42,9 @@ def run():
         print("Ha seleccionado ingresar los datos del paciente, a continuación se le solicitarán los datos para "
               "rellenar la ficha de forma automática.")
         paciente = Paciente(input("Nombre: "), input("Apellido: "), int(input("RUN: ")), int(input("Teléfono: ")),
-                            input("Dirección: "), input("Estado civil: "))
+                            input("Dirección: "), input("Estado civil: "), input("Sexo: "), int(input("Edad: ")))
+        while 0 < paciente.edad > 120:
+            paciente.edad = int(input("Ha ingresado una edad inválida, ingrese nuevamente: "))
         acompaniante = None
         if input("¿El paciente viene acompañado?: ").lower() == "si":
             print("Por favor ingrese los datos del acompañante: ")
@@ -47,16 +56,57 @@ def run():
                             input("Dirección: "))
         print("Por favor ingrese la fecha y hora: ")
         ficha = Ficha(paciente, acompaniante, personal, input("Fecha: "), input("Hora: "))
-        fichas.append(ficha)
-        print("Se han ingresado los datos de atención correctamente: ")
+        ficha.id = len(fichas) + 1
+        fichas[ficha.id] = ficha
+        ficha_actual = ficha
+        print("Se han ingresado los siguientes datos de atención correctamente: ")
         print(str(ficha))
-        print("Id de ficha:" + str(len(fichas)))
+        print("Id de ficha: " + str(ficha.id))
         input()
 
     elif option == 2:
-        print("")
+        if ficha_actual is None:
+            print("Aún no se ha ingresado ninguna ficha, por favor ingrese los datos del paciente.")
+            time.sleep(5)
+            run()
+        else:
+            print("Ingrese los datos del médico: \n")
+            ficha_actual.medico = Medico(input("Nombre: "), input("Apellido: "), int(input("RUN: ")), input("Titulo: "),
+                                         input("Institución egreso: "), input("Fecha de titulación: "),
+                                         int(input("Teléfono: ")), input("Dirección: "), input("Especialidad: "))
+            fichas[ficha_actual.id] = ficha_actual
+            print(ficha_actual)
     elif option == 3:
-        print("")
+        medicamentos_str = """Seleccione el tipo de medicamento:
+
+                1) Parcetamol
+                2) Lidocaína
+                3) Omeprazol
+                4) Penicilina
+                5) Salbutamol
+                """
+        medicamento_opt = input(medicamentos_str)
+        while not isint(medicamento_opt) or 1 > medicamento_opt > 5:
+            medicamento_opt = input(medicamentos_str)
+            if not isint(option):
+                input("No ha ingresado una opción válida, reintente...")
+                continue
+            else:
+                medicamento_opt = int(medicamento_opt)
+        medicamento = None
+        if medicamento_opt == 1:
+            medicamento = Paracetamol(int(input("Ha seleccionado paracetamol, ingrese la cantidad")))
+        elif medicamento_opt == 2:
+            medicamento = Lidocaina(int(input("Ha seleccionado lidocaína, ingrese la cantidad")))
+        elif medicamento_opt == 3:
+            medicamento = Omeprazol(int(input("Ha seleccionado omeprazol, ingrese la cantidad")))
+        elif medicamento_opt == 4:
+            medicamento = Penicilina(int(input("Ha seleccionado penicilina, ingrese la cantidad")))
+        elif medicamento_opt == 5:
+            medicamento = Salbutamol(int(input("Ha seleccionado salbutamol, ingrese la cantidad")))
+        ficha_actual.paciente.add_medicine(medicamento)
+        fichas[ficha_actual.id] = ficha_actual
+        print(ficha_actual)
     elif option == 4:
         print("")
     elif option == 5:

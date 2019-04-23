@@ -5,6 +5,7 @@ from fichas_medicas.people import Personal
 
 
 class Ficha:
+
     def __init__(self, paciente: Paciente, acompaniante: Acompaniante, personal_ingreso: Personal, fecha: str,
                  hora: str):
         self.id = -1
@@ -19,7 +20,14 @@ class Ficha:
         self.personal_ingreso = personal_ingreso
         self.fecha = fecha
         self.hora = hora
+        self.medico = None
+        self.sintomas = ""
+        self.diagnostico = ""
+        self.reposo = False
+        self.reposo_dias = 0
 
     def __str__(self):
         return str(self.paciente) + "\n" + str(self.acompaniante) if self.acompaniante is not None else "" + str(
-            self.personal_ingreso) + "\nFecha: " + self.fecha + "\nHora: " + self.hora
+            self.personal_ingreso) + "\nFecha: " + self.fecha + "\nHora: " + self.hora + ("\n" + str(
+            self.medico)) if self.medico is not None else "" + "\nSintomas: " + self.sintomas + "\nReposo: " + "Si" if self.reposo else "No" + (
+                    "\nDías de reposo: " + str(self.reposo_dias)) if self.reposo else ""

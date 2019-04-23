@@ -29,7 +29,7 @@ class Serializable:
         """Query to insert this object to the database"""
         pass
 
-    def values(self) -> str:
+    def values(self) -> tuple:
         """Values from this object to replace in the query"""
         pass
 
