@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sqlite3
 
 
@@ -6,24 +7,33 @@ class Database:
         self.connection = None
 
     def connect(self):
+        """Function to create connection to database and create default tables"""
         pass
 
     def save(self, ficha):
+        """Function to save `fichas` on the database"""
         pass
 
-    def find_one(self, ficha_id):
+    def find_one(self, ficha_id: int):
+        """Fetch the document that matches with the provided id or None if not found"""
         pass
 
-    def find_all(self):
+    def find_all(self) -> []:
+        """Fetch all documents from the database and return them as a list"""
         pass
 
 
 class Serializable:
 
-    def query(self):
+    def query(self) -> str:
+        """Query to insert this object to the database"""
         pass
 
-    def values(self):
+    def values(self) -> str:
+        """Values from this object to replace in the query"""
+        pass
+
+    def save(self) -> None:  # TODO: get database instance and execute query
         pass
 
 
@@ -56,7 +66,7 @@ class SQLiteDatabase(Database):
         ON UPDATE NO ACTION)
         ENGINE = InnoDB''')
 
-    def save(self, object):
-        if not isinstance(object, Serializable):
+    def save(self, entity: Serializable):
+        if not isinstance(entity, Serializable):
             raise ValueError("object is not an instance of Serializable")
-        self.connection.execute(object.query(), object.values())
+        self.connection.execute(entity.query(), entity.values())
