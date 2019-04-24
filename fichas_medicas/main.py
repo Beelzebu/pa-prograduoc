@@ -3,21 +3,16 @@
 import os
 import platform
 import re
+import sys
 import time
 
 from fichas_medicas.ficha import Ficha
-from fichas_medicas.medicine import Lidocaina
-from fichas_medicas.medicine import Omeprazol
-from fichas_medicas.medicine import Paracetamol
-from fichas_medicas.medicine import Penicilina
-from fichas_medicas.medicine import Salbutamol
-from fichas_medicas.people import Acompaniante
-from fichas_medicas.people import Medico
-from fichas_medicas.people import Paciente
-from fichas_medicas.people import Personal
+from fichas_medicas.medicine import (Lidocaina, Omeprazol, Paracetamol, Penicilina, Salbutamol)
+from fichas_medicas.people import (Acompaniante, Medico, Paciente, Personal)
 
-ficha_actual = None
-fichas = {}
+this = sys.modules[__name__]
+this.ficha_actual = None
+this.fichas = {}
 
 
 def run():
@@ -57,25 +52,27 @@ def run():
         print("Por favor ingrese la fecha y hora: ")
         ficha = Ficha(paciente, acompaniante, personal, input("Fecha: "), input("Hora: "))
         ficha.id = len(fichas) + 1
-        fichas[ficha.id] = ficha
-        ficha_actual = ficha
+        this.fichas[ficha.id] = ficha
+        this.ficha_actual = ficha
         print("Se han ingresado los siguientes datos de atención correctamente: ")
         print(str(ficha))
         print("Id de ficha: " + str(ficha.id))
         input()
 
     elif option == 2:
-        if ficha_actual is None:
+        if this.ficha_actual is None:
             print("Aún no se ha ingresado ninguna ficha, por favor ingrese los datos del paciente.")
             time.sleep(5)
             run()
         else:
             print("Ingrese los datos del médico: \n")
-            ficha_actual.medico = Medico(input("Nombre: "), input("Apellido: "), int(input("RUN: ")), input("Titulo: "),
-                                         input("Institución egreso: "), input("Fecha de titulación: "),
-                                         int(input("Teléfono: ")), input("Dirección: "), input("Especialidad: "))
-            fichas[ficha_actual.id] = ficha_actual
-            print(ficha_actual)
+            this.ficha_actual.medico = Medico(input("Nombre: "), input("Apellido: "), int(input("RUN: ")),
+                                              input("Titulo: "),
+                                              input("Institución egreso: "), input("Fecha de titulación: "),
+                                              int(input("Teléfono: ")), input("Dirección: "), input("Especialidad: "))
+            this.fichas[this.ficha_actual.id] = this.ficha_actual
+            print(this.ficha_actual)
+            input()
     elif option == 3:
         medicamentos_str = """Seleccione el tipo de medicamento:
 
@@ -104,9 +101,10 @@ def run():
             medicamento = Penicilina(int(input("Ha seleccionado penicilina, ingrese la cantidad")))
         elif medicamento_opt == 5:
             medicamento = Salbutamol(int(input("Ha seleccionado salbutamol, ingrese la cantidad")))
-        ficha_actual.paciente.add_medicine(medicamento)
-        fichas[ficha_actual.id] = ficha_actual
-        print(ficha_actual)
+        this.ficha_actual.paciente.add_medicine(medicamento)
+        this.fichas[this.ficha_actual.id] = this.ficha_actual
+        print(this.ficha_actual)
+        input()
     elif option == 4:
         print("")
     elif option == 5:

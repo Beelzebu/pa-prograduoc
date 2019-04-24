@@ -27,7 +27,18 @@ class Ficha:
         self.reposo_dias = 0
 
     def __str__(self):
+        asd = "---------------\nFicha de atención:---------------\n\n\n" \
+              "{}\n" \
+              "{}" \
+              "{}\n" \
+              "{}\n" \
+              "{}\n" \
+              "{}" \
+              "{}\n" \
+              "{}" \
+              "{}".format(self.paciente, self.acompaniante if self.acompaniante is not None else "",
+                          self.personal_ingreso, self.fecha, self.hora, self.medico if self.medico is not None else "")
         return str(self.paciente) + "\n" + str(self.acompaniante) if self.acompaniante is not None else "" + str(
             self.personal_ingreso) + "\nFecha: " + self.fecha + "\nHora: " + self.hora + ("\n" + str(
             self.medico)) if self.medico is not None else "" + "\nSintomas: " + self.sintomas + "\nReposo: " + "Si" if self.reposo else "No" + (
-                    "\nDías de reposo: " + str(self.reposo_dias)) if self.reposo else ""
+                "\nDías de reposo: " + str(self.reposo_dias)) if self.reposo else ""

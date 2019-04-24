@@ -4,6 +4,7 @@ from fichas_medicas.medicine import Medicamento
 
 
 class Humano(Serializable):
+
     def __init__(self, nombre: str, apellido: str, run: int):
         self.nombre = nombre
         self.apellido = apellido
