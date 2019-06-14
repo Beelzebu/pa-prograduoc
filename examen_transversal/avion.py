@@ -25,6 +25,37 @@ def normalize_run(run: str) -> str:
     return run.replace(".", "").split("-")[0][0:8]
 
 
+def prettify_run(run: str) -> str:
+    dv = calc_dv_run(run)
+    if len(run) == 8:
+        return run[0:2] + "." + run[2:5] + "." + run[5:8] + "-" + dv
+    else:
+        return run[0:1] + "." + run[1:4] + "." + run[4:7] + "-" + dv
+
+
+def calc_dv_run(run: str) -> str:
+    numeros = []
+    for i in run[::-1]:
+        numeros.append(int(i))
+    multiplicador = 2
+    for i in range(len(numeros)):
+        if multiplicador > 7:
+            multiplicador = 2
+        numeros[i] = numeros[i] * multiplicador
+        multiplicador += 1
+    suma = 0
+    for i in numeros:
+        suma += i
+    resto = suma % 11
+    dv = 11 - resto
+    if dv == 11:
+        return "0"
+    elif dv == 10:
+        return "K"
+    else:
+        return str(dv)
+
+
 def print_asientos():
     for n_fila in range(len(asientos)):
         linea = ""
@@ -48,13 +79,21 @@ def print_asientos():
                   "22| |23| |24| |25| |26| |27| |28| |29| |30| |31| |32| |33|")
 
 
-def comprar_asiento(fila, linea, run):
+def asignar_asiento(fila, asiento, run):
     if is_run(run):
-        print("Es válido")
-        print(normalize_run(run))
-        asientos[fila - 1][linea - 1] = normalize_run(run)
+        run = normalize_run(run)
+        print("Usando run: " + prettify_run(run))
+        asientos[asiento - 1][fila - 1] = run
     else:
         print("Es inválido")
+
+
+def is_int(x: str) -> bool:
+    try:
+        int(x)
+        return True
+    except ValueError:
+        return False
 
 
 if __name__ == '__main__':
@@ -73,5 +112,13 @@ if __name__ == '__main__':
             fila = 2
         elif fila == "F":
             fila = 1
-        comprar_asiento(fila, int(input("Ingrese asiento: ")), input("Ingrese run: "))
+        else:
+            print("No ha ingresado una fila válida.")
+            continue
+        asiento = input("Ingrese asiento: ")
+        while not is_int(asiento):
+            print("No ha ingresado un asiento válido.")
+            asiento = input("Ingrese asiento: ")
+        asiento = int(asiento)
+        comprar_asiento(fila, asiento, input("Ingrese run: "))
         print_asientos()
