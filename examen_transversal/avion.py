@@ -5,6 +5,7 @@ TODO:
 - Cada asiento está asociado al rut de la persona que lo usará
 """
 
+letra_asientos = ["A", "B", "C", "D", "E", "F"]
 asientos = []
 
 
@@ -15,6 +16,9 @@ def init():
             fila.append(None)
         asientos.append(fila)
     print_asientos()
+    while True:
+        asignar_asiento()
+        print_asientos()
 
 
 def is_run(run: str) -> bool:
@@ -56,21 +60,40 @@ def calc_dv_run(run: str) -> str:
         return str(dv)
 
 
-def print_asientos():
+def asiento_to_str(fila: int) -> str:
+    if fila == 0:
+        return "F"
+    elif fila == 1:
+        return "E"
+    elif fila == 2:
+        return "D"
+    elif fila == 3:
+        return "C"
+    elif fila == 4:
+        return "B"
+    elif fila == 5:
+        return "A"
+
+
+def asiento_to_int(fila: str) -> int:
+    fila = fila.upper()
+    if fila == "A":
+        return 5
+    elif fila == "B":
+        return 4
+    elif fila == "C":
+        return 3
+    elif fila == "D":
+        return 2
+    elif fila == "E":
+        return 1
+    elif fila == "F":
+        return 0
+
+
+def print_asientos() -> None:
     for n_fila in range(len(asientos)):
-        linea = ""
-        if n_fila == 0:
-            linea += "F: "
-        elif n_fila == 1:
-            linea += "E: "
-        elif n_fila == 2:
-            linea += "D: "
-        elif n_fila == 3:
-            linea += "C: "
-        elif n_fila == 4:
-            linea += "B: "
-        elif n_fila == 5:
-            linea += "A: "
+        linea = asiento_to_str(n_fila) + ": "
         for n_asiento in range(len(asientos[n_fila])):
             linea += "[" + ("-" if asientos[n_fila][n_asiento] is None else "X") + ("] " if n_asiento < 9 else "]  ")
         print(linea)
@@ -79,13 +102,62 @@ def print_asientos():
                   "22| |23| |24| |25| |26| |27| |28| |29| |30| |31| |32| |33|")
 
 
-def asignar_asiento(fila, asiento, run):
-    if is_run(run):
-        run = normalize_run(run)
-        print("Usando run: " + prettify_run(run))
-        asientos[asiento - 1][fila - 1] = run
+def is_empty(fila: int, asiento: int) -> bool:
+    return asientos[fila - 1][asiento * fila - 1] is None
+
+
+def validate_y_or_n(input_to_validate: str):
+    if len(input_to_validate) != 0:
+        input_to_validate = input_to_validate.upper()[0]
+    if input_to_validate == "Y" or input_to_validate == "S":
+        return True
+    elif input_to_validate == "N":
+        return False
     else:
-        print("Es inválido")
+        print("No ha ingresado una opción válida (S o N)")
+        return validate_y_or_n(input("Ingrese una opción (S o N): "))
+
+
+def request_run(failed: bool = False) -> str:
+    if failed:
+        print("No ha ingresado un run válido.")
+    run = input("Ingrese run: ")
+    if not is_run(run):
+        return request_run(failed=True)
+    run = normalize_run(run=run)
+    print("Usando run: " + prettify_run(run=run))
+    right = validate_y_or_n(input("Es correcto: "))
+    if not right:
+        return request_run()
+    else:
+        return run
+
+
+def request_fila(failed: bool = False) -> int:
+    if failed:
+        print("No ha ingresado una fila válida.")
+    fila = input("Ingrese fila: ")
+    if not is_int(fila):
+        return request_fila(failed=True)
+    return int(fila)
+
+
+def request_asiento(failed: bool = False) -> int:
+    if failed:
+        print("No ha ingresado un asiento válido.")
+    asiento = input("Ingrese asiento: ").upper()
+    if asiento in letra_asientos:
+        asiento = asiento_to_int(asiento)
+    else:
+        return request_asiento(failed=True)
+    return asiento
+
+
+def asignar_asiento() -> None:
+    run = request_run()
+    fila = request_fila()
+    asiento = request_asiento()
+    asientos[asiento][fila - 1] = run
 
 
 def is_int(x: str) -> bool:
@@ -98,27 +170,3 @@ def is_int(x: str) -> bool:
 
 if __name__ == '__main__':
     init()
-    while True:
-        fila = input("Ingrese fila: ").upper()
-        if fila == "A":
-            fila = 6
-        elif fila == "B":
-            fila = 5
-        elif fila == "C":
-            fila = 4
-        elif fila == "D":
-            fila = 3
-        elif fila == "E":
-            fila = 2
-        elif fila == "F":
-            fila = 1
-        else:
-            print("No ha ingresado una fila válida.")
-            continue
-        asiento = input("Ingrese asiento: ")
-        while not is_int(asiento):
-            print("No ha ingresado un asiento válido.")
-            asiento = input("Ingrese asiento: ")
-        asiento = int(asiento)
-        comprar_asiento(fila, asiento, input("Ingrese run: "))
-        print_asientos()
