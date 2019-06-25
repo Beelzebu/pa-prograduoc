@@ -2,11 +2,15 @@
 import os
 import platform
 import re
+import time #bh
+from tkinter import *
 
 letra_asientos = ["A", "B", "C", "D", "E", "F"]
 asientos = []
 asientos_espacio_adicional = [0, 1, 2, 3, 4, 17]
 asientos_no_reclinables = [9, 10, 11, 12, 13, 14, 15, 16]
+
+
 
 
 def init() -> None:
@@ -19,19 +23,31 @@ def init() -> None:
         for j in range(33):
             fila.append(None)
         asientos.append(fila)
+    apl = Tk()
+    texto = Label(apl, text="Hola Mundo!")
+    texto.pack()
+    apl.mainloop()
     menu()
 
 
 def menu() -> None:
     while True:
         clear()
-        print("[1] Compra de pasaje")
-        print("[2] Listado de pasajeros")
-        print("[3] Mostrar ubicaciones disponibles")
-        print("[4] Buscar pasajero")
-        print("[5] Reasignar asiento")
-        print("[6] Mostrar ganancias totales")
-        print("[7] Salir del programa")
+        print("""
+                                           >Menu Aerolineas Flash<
+                     
+                                ----------------------------------------------
+                                |                                            |
+                                |   [1]  Compra de pasaje                    |
+                                |   [2]  Listado de pasajeros                |
+                                |   [3]  Mostrar ubicacion disponible        |
+                                |   [4]  Buscar pasajero                     |
+                                |   [5]  Reasignar asiento                   |
+                                |   [6]  Mostrar ganancias totales           |
+                                |                                            |
+                                |   [7]  >EXIT<                              |
+                                ----------------------------------------------""")
+
         opcion = int_in_range(x=input("Ingrese una opción: "), min_n=1, max_n=7)
         if opcion == 1:
             comprar_asientos()
@@ -48,7 +64,7 @@ def menu() -> None:
             if ubicacion is None:
                 print("El pasajero solicitado no tiene asientos comprados.")
             else:
-                print("El pasajero tiene comprado el asiento " + asiento_to_str(ubicacion[0]) + " en la fila " + str(
+                print("El pasajero tiene comprado el asiento " + asiento_to_str(ubicacion[0]) + " en la columna " + str(
                     ubicacion[1] + 1))
             input("Presione enter para volver al menú principal.")
         elif opcion == 5:
@@ -58,6 +74,8 @@ def menu() -> None:
             print("Ganancias totales hasta el momento: $" + str(ganancias()))
             input("Presione enter para volver al menú principal.")
         elif opcion == 7:
+            print("Gracias por usar sistema Flash.py")
+            time.sleep(3)
             exit(0)
 
 
@@ -71,6 +89,7 @@ def clear() -> None:
 
 
 def lista_pasajeros() -> list:
+    """Devuelve una lista ordenada de los RUT de los pasajeros"""
     pasajeros = []
     for fila in asientos:
         for run in fila:
@@ -81,6 +100,8 @@ def lista_pasajeros() -> list:
 
 
 def buscar_pasajero(run: str) -> tuple:
+    """Buscar un pasajero por su RUT, devuelve una tupla con el numero de columna y con el numero de asiento
+    Una tupla es un array que no permite modificaciones en sus valores"""
     for n_fila in range(6):
         for n_asiento in range(33):
             if asientos[n_fila][n_asiento] == run:
@@ -89,6 +110,8 @@ def buscar_pasajero(run: str) -> tuple:
 
 
 def reasignar_asiento(run: str) -> None:
+    """Se busca pasajero por el RUT en caso de que exista, se solicita la columna y asiento para asignar
+    luego se elimina las asignación anterior, en caso de que el Rut (Pasajero) no exista, la funcion se termina"""
     print_asientos()
     ubicacion_anterior = buscar_pasajero(run)
     if ubicacion_anterior is None:
@@ -202,6 +225,7 @@ def asiento_to_int(fila: str) -> int:
 
 
 def print_asientos() -> None:
+    """imprime los asientos de forma linda"""
     for n_fila in range(len(asientos)):
         linea = asiento_to_str(n_fila) + ": "
         for n_asiento in range(len(asientos[n_fila])):
@@ -214,10 +238,12 @@ def print_asientos() -> None:
 
 
 def is_empty(fila: int, asiento: int) -> bool:
+    """Se revisa si un asiento en una columna esta vacio"""
     return asientos[asiento][fila] is None or asientos[asiento][fila] is 0
 
 
-def validate_y_or_n(input_to_validate: str):
+def validate_y_or_n(input_to_validate: str) -> bool:
+    """Valida si el str entregado es un SI or NO, en caso de que no cumpla, se solicita ingresar nuevamente la respuesta"""
     if len(input_to_validate) != 0:
         input_to_validate = input_to_validate.upper()[0]
     if input_to_validate == "Y" or input_to_validate == "S":
@@ -230,6 +256,9 @@ def validate_y_or_n(input_to_validate: str):
 
 
 def request_run(failed: bool = False) -> str:
+    """Solicita un RUT, lo valida y lo devuelve sin puntos, guion, comas y otro caracter que no sea numerico, cortando 
+    el texto ingresado a 8 caracteres como maximo, en caso de que el RUT ingresado sea invalido, se solicita volver a ingresarlo
+    repitiendo proceso de validación y eliminación de caracteres innecesarios"""
     if failed:
         print("No ha ingresado un run válido.")
     run = input("Ingrese run: ")
@@ -245,15 +274,17 @@ def request_run(failed: bool = False) -> str:
 
 
 def request_fila(failed: bool = False) -> int:
+    """Solicita columna y verifica si este esta en los parametros de columnas"""
     if failed:
-        print("No ha ingresado una fila válida.")
-    fila = input("Ingrese fila: ")
+        print("No ha ingresado una columna válida.")
+    fila = int_in_range(input("Ingrese columna: "), 0, 33, "No ha ingresado una columna válida, reintente: ")
     if not is_int(fila):
         return request_fila(failed=True)
     return int(fila) - 1
 
 
 def request_asiento(failed: bool = False) -> int:
+    """Solicita los asientos y verifica que estos esten en los parametros acordados"""
     if failed:
         print("No ha ingresado un asiento válido.")
     asiento = input("Ingrese asiento: ").upper()
@@ -274,6 +305,7 @@ def price_for(fila: int) -> int:
 
 
 def ganancias() -> int:
+    """Muestra las ganancias totales de asientos del avion"""
     total = 0
     for n_fila in range(6):
         for n_asiento in range(33):
