@@ -41,6 +41,7 @@ def menu() -> None:
                                 |                                            |
                                 |   [7]  >EXIT<                              |
                                 ----------------------------------------------""")
+        price_asiento()
 
         opcion = int_in_range(x=input("Ingrese una opción: "), min_n=1, max_n=7)
         if opcion == 1:
@@ -235,9 +236,9 @@ def print_asientos() -> None:
                   "22| |23| |24| |25| |26| |27| |28| |29| |30| |31| |32| |33|")
 
 
-def is_empty(fila: int, asiento: int) -> bool:
+def is_empty(columna: int, asiento: int) -> bool:
     """Se revisa si un asiento en una columna esta vacio"""
-    return asientos[fila][asiento] is None
+    return asientos[asiento][columna] is None
 
 
 def validate_y_or_n(input_to_validate: str) -> bool:
@@ -308,24 +309,27 @@ def print_ganancias() -> None:
     comun = 0
     piernas = 0
     no_reclinable = 0
-    for n_fila in range(6):
-        for n_asiento in range(33):
-            if not is_empty(fila=n_fila, asiento=n_asiento):
-                price = price_for(fila=n_fila)
-                if price == 60000:
-                    comun += 1
-                elif price == 80000:
+    for n_asiento in range(6):
+        for n_columna in range(33):
+            if not is_empty(columna=n_columna, asiento=n_asiento):
+                price = price_for(fila=n_asiento)
+                if price == 80000:
                     piernas += 1
-                else:
+                elif price == 50000:
                     no_reclinable += 1
-        text = """Tipo de Asiento\t\t\t\t\t\tCantidad\tTotal
-Asiento común\t\t\t$60.000\t\t{}\t\t${}
-Espacio para piernas\t$80.000\t\t{}\t\t${}
-No reclina\t\t\t\t$50.000\t\t{}\t\t${}
-TOTAL\t\t\t\t\t\t\t\t{}\t\t${}""".format(comun, comun * 60000, piernas, piernas * 80000, no_reclinable,
-                                         no_reclinable * 50000,
-                                         comun,
-                                         piernas, no_reclinable, comun * 60000, piernas * 80000, piernas * 50000)
+                else:
+                    comun += 1
+    text = """|------------------------------------------|
+|tipo de asiento| Cantidad |     Total     |
+|------------------------------------------|
+| Asiento Comun |    {}    |\t\t{}\t\t|
+| Esp. Piernas  |    {}    |\t\t{}\t\t|
+| No Reclina    |    {}    |\t\t{}\t\t|
+|-------------------------------------------
+|     TOTAL     |    {}    |\t\t{}\t\t|
+|------------------------------------------|""".format(comun, comun * 60000, piernas, piernas * 80000, no_reclinable,
+                                                       no_reclinable * 50000, comun + piernas + no_reclinable,
+                                                       (comun * 60000) + (piernas * 80000) + (piernas * 50000))
     print(text)
 
 
@@ -400,6 +404,17 @@ def comprar_asientos() -> None:
         if pago > deuda:
             print("Vuelto: $" + str(pago - deuda))
     input("Presione enter para continuar...")
+
+
+def price_asiento():
+    print("""             
+                                         >Precio asientos vuelos Flash<
+                        ----------------------------------------------------------------
+                        | # Asientos clase alta     $80.000 [Asientos 1-2-3-4-5-18|    |
+                        | # Asientos común          $60.000 [Asientos 6-7-8-9-19 al 33]|
+                        | # Asientos no reclinable  $50.000 [Asientos 10-17]           |
+                        ----------------------------------------------------------------
+        """)
 
 
 # Inicio del programa, si el archivo se ejecuta de forma independiente python asigna el valor "__main__" a la
