@@ -2,15 +2,12 @@
 import os
 import platform
 import re
-import time #bh
-from tkinter import *
+import time  # bh
 
 letra_asientos = ["A", "B", "C", "D", "E", "F"]
 asientos = []
 asientos_espacio_adicional = [0, 1, 2, 3, 4, 17]
 asientos_no_reclinables = [9, 10, 11, 12, 13, 14, 15, 16]
-
-
 
 
 def init() -> None:
@@ -23,19 +20,16 @@ def init() -> None:
         for j in range(33):
             fila.append(None)
         asientos.append(fila)
-    apl = Tk()
-    texto = Label(apl, text="Hola Mundo!")
-    texto.pack()
-    apl.mainloop()
     menu()
 
 
 def menu() -> None:
+    """Bucle principal del programa"""
     while True:
         clear()
         print("""
                                            >Menu Aerolineas Flash<
-                     
+
                                 ----------------------------------------------
                                 |                                            |
                                 |   [1]  Compra de pasaje                    |
@@ -71,7 +65,7 @@ def menu() -> None:
             reasignar_asiento(request_run())
             input("Presione enter para volver al menú principal.")
         elif opcion == 6:
-            print("Ganancias totales hasta el momento: $" + str(ganancias()))
+            print_ganancias()
             input("Presione enter para volver al menú principal.")
         elif opcion == 7:
             print("Gracias por usar sistema Flash.py")
@@ -117,6 +111,7 @@ def reasignar_asiento(run: str) -> None:
     if ubicacion_anterior is None:
         print("El pasajero no ha comprado ningún asiento.")
     else:
+        old_price = price_for(fila=ubicacion_anterior[0])
         asientos[ubicacion_anterior[0]][ubicacion_anterior[1]] = None
         fila = request_fila()
         asiento = request_asiento()
@@ -124,6 +119,9 @@ def reasignar_asiento(run: str) -> None:
             print("La ubicación solicitada está ocupada, intente nuevamente...")
             fila = request_fila()
             asiento = request_asiento()
+        new_price = price_for(fila=fila)
+        if new_price > old_price:
+            print("Diferencia de precio a pagar por la reasignación: $" + str(old_price - new_price))
         asientos[asiento][fila] = run
 
 
@@ -239,11 +237,12 @@ def print_asientos() -> None:
 
 def is_empty(fila: int, asiento: int) -> bool:
     """Se revisa si un asiento en una columna esta vacio"""
-    return asientos[asiento][fila] is None or asientos[asiento][fila] is 0
+    return asientos[fila][asiento] is None
 
 
 def validate_y_or_n(input_to_validate: str) -> bool:
-    """Valida si el str entregado es un SI or NO, en caso de que no cumpla, se solicita ingresar nuevamente la respuesta"""
+    """Valida si el str entregado es un SI or NO, en caso de que no cumpla, se solicita ingresar nuevamente la
+    respuesta """
     if len(input_to_validate) != 0:
         input_to_validate = input_to_validate.upper()[0]
     if input_to_validate == "Y" or input_to_validate == "S":
@@ -256,9 +255,9 @@ def validate_y_or_n(input_to_validate: str) -> bool:
 
 
 def request_run(failed: bool = False) -> str:
-    """Solicita un RUT, lo valida y lo devuelve sin puntos, guion, comas y otro caracter que no sea numerico, cortando 
-    el texto ingresado a 8 caracteres como maximo, en caso de que el RUT ingresado sea invalido, se solicita volver a ingresarlo
-    repitiendo proceso de validación y eliminación de caracteres innecesarios"""
+    """Solicita un RUT, lo valida y lo devuelve sin puntos, guion, comas y otro caracter que no sea numerico,
+    cortando el texto ingresado a 8 caracteres como maximo, en caso de que el RUT ingresado sea invalido, se solicita
+    volver a ingresarlo repitiendo proceso de validación y eliminación de caracteres innecesarios """
     if failed:
         print("No ha ingresado un run válido.")
     run = input("Ingrese run: ")
@@ -304,15 +303,30 @@ def price_for(fila: int) -> int:
         return 60000
 
 
-def ganancias() -> int:
+def print_ganancias() -> None:
     """Muestra las ganancias totales de asientos del avion"""
-    total = 0
+    comun = 0
+    piernas = 0
+    no_reclinable = 0
     for n_fila in range(6):
         for n_asiento in range(33):
-            run = asientos[n_fila][n_asiento]
-            if run is not None:
-                total += price_for(fila=n_fila)
-    return total
+            if not is_empty(fila=n_fila, asiento=n_asiento):
+                price = price_for(fila=n_fila)
+                if price == 60000:
+                    comun += 1
+                elif price == 80000:
+                    piernas += 1
+                else:
+                    no_reclinable += 1
+        text = """Tipo de Asiento\t\t\t\t\t\tCantidad\tTotal
+Asiento común\t\t\t$60.000\t\t{}\t\t${}
+Espacio para piernas\t$80.000\t\t{}\t\t${}
+No reclina\t\t\t\t$50.000\t\t{}\t\t${}
+TOTAL\t\t\t\t\t\t\t\t{}\t\t${}""".format(comun, comun * 60000, piernas, piernas * 80000, no_reclinable,
+                                         no_reclinable * 50000,
+                                         comun,
+                                         piernas, no_reclinable, comun * 60000, piernas * 80000, piernas * 50000)
+    print(text)
 
 
 def asignar_asiento() -> tuple:
